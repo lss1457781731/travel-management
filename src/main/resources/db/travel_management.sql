@@ -1,0 +1,69 @@
+CREATE DATABASE IF NOT EXISTS travel_management DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
+
+USE travel_management;
+
+-- 用户表
+CREATE TABLE IF NOT EXISTS sys_user (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT COMMENT '用户ID',
+    username VARCHAR(50) NOT NULL UNIQUE COMMENT '用户名',
+    password VARCHAR(100) NOT NULL COMMENT '密码',
+    nickname VARCHAR(50) COMMENT '昵称',
+    avatar VARCHAR(200) COMMENT '头像',
+    email VARCHAR(100) COMMENT '邮箱',
+    phone VARCHAR(20) COMMENT '手机号',
+    role VARCHAR(20) NOT NULL DEFAULT 'user' COMMENT '角色：admin/user',
+    status TINYINT NOT NULL DEFAULT 1 COMMENT '状态：0-禁用，1-正常',
+    create_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    update_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间'
+) COMMENT '用户表';
+
+-- 地区表
+CREATE TABLE IF NOT EXISTS region (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT COMMENT '地区ID',
+    parent_id BIGINT COMMENT '父级地区ID',
+    name VARCHAR(50) NOT NULL COMMENT '地区名称',
+    level VARCHAR(20) NOT NULL COMMENT '级别：country/province/city/district',
+    code VARCHAR(50) NOT NULL UNIQUE COMMENT '地区代码',
+    description TEXT COMMENT '描述',
+    image VARCHAR(200) COMMENT '图片',
+    create_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    update_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间'
+) COMMENT '地区表';
+
+-- 景点表
+CREATE TABLE IF NOT EXISTS scenic (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT COMMENT '景点ID',
+    name VARCHAR(100) NOT NULL COMMENT '景点名称',
+    description TEXT COMMENT '描述',
+    open_time VARCHAR(100) COMMENT '开放时间',
+    ticket_price DECIMAL(10,2) COMMENT '票价',
+    image VARCHAR(200) COMMENT '图片',
+    status TINYINT NOT NULL DEFAULT 1 COMMENT '状态：0-关闭，1-开放',
+    create_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    update_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间'
+) COMMENT '景点表';
+
+-- 景点地区关联表
+CREATE TABLE IF NOT EXISTS scenic_region (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT COMMENT 'ID',
+    scenic_id BIGINT NOT NULL COMMENT '景点ID',
+    region_id BIGINT NOT NULL COMMENT '地区ID',
+    create_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    UNIQUE KEY uk_scenic_region (scenic_id, region_id)
+) COMMENT '景点地区关联表';
+
+-- 评论表
+CREATE TABLE IF NOT EXISTS comment (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT COMMENT '评论ID',
+    user_id BIGINT NOT NULL COMMENT '用户ID',
+    scenic_id BIGINT NOT NULL COMMENT '景点ID',
+    content TEXT NOT NULL COMMENT '评论内容',
+    rating TINYINT NOT NULL DEFAULT 5 COMMENT '评分：1-5',
+    status TINYINT NOT NULL DEFAULT 1 COMMENT '状态：0-隐藏，1-显示',
+    create_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    update_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间'
+) COMMENT '评论表';
+
+-- 插入管理员账号
+INSERT INTO sys_user (username, password, nickname, role) 
+VALUES ('admin', '$2a$10$YF/qfFGPXJXVvxMYyTJXZOuYxXX3ZX3xFtBkEh0XYyF5yxTPBnAjm', '管理员', 'admin'); 

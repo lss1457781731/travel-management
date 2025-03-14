@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.travel.management.mapper.RouteMapper">
+    <!-- 分页查询路线列表，包含关联的地区和景点信息 -->
+    <select id="selectRoutePage" resultType="com.travel.management.entity.Route">
+        SELECT DISTINCT
+            r.id,
+            r.name,
+            r.days,
+            r.suitable_for,
+            r.best_time,
+            r.group_size,
+            r.vehicle_type,
+            r.created_at,
+            r.updated_at
+        FROM
+            route r
+            LEFT JOIN route_region rr ON r.id = rr.route_id
+            LEFT JOIN region reg ON rr.region_id = reg.id
+            LEFT JOIN route_scenic rs ON r.id = rs.route_id
+            LEFT JOIN scenic s ON rs.scenic_id = s.id
+        <where>
+            <if test="name != null and name != ''">
+                AND r.name LIKE CONCAT('%', #{name}, '%')
+            </if>
+            <if test="regionId != null">
+                AND rr.region_id = #{regionId}
+            </if>
+            <if test="days != null">
+                AND r.days = #{days}
+            </if>
+            <if test="suitableFor!= null and suitableFor!= ''">
+                AND r.suitable_for LIKE CONCAT('%', #{suitableFor}, '%')
+            </if>
+            <if test="routeType!= null">
+                AND r.route_type = #{routeType}
+            </if>
+        </where>
+        ORDER BY r.created_at DESC
+    </select>
+</mapper>

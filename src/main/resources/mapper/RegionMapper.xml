@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.travel.management.mapper.RegionMapper">
+    
+    <resultMap id="BaseResultMap" type="com.travel.management.entity.Region">
+        <id column="id" property="id"/>
+        <result column="parent_id" property="parentId"/>
+        <result column="name" property="name"/>
+        <result column="level" property="level"/>
+        <result column="code" property="code"/>
+        <result column="description" property="description"/>
+        <result column="image" property="image"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+    </resultMap>
+    
+    <sql id="Base_Column_List">
+        id, parent_id, name, level, code, description, image, create_time, update_time
+    </sql>
+    
+    <insert id="insert" parameterType="com.travel.management.entity.Region" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO region (parent_id, name, level, code, description, image)
+        VALUES (#{parentId}, #{name}, #{level}, #{code}, #{description}, #{image})
+    </insert>
+    
+    <update id="update" parameterType="com.travel.management.entity.Region">
+        UPDATE region
+        <set>
+            <if test="parentId != null">parent_id = #{parentId},</if>
+            <if test="name != null">name = #{name},</if>
+            <if test="level != null">level = #{level},</if>
+            <if test="code != null">code = #{code},</if>
+            <if test="description != null">description = #{description},</if>
+            <if test="image != null">image = #{image},</if>
+        </set>
+        WHERE id = #{id}
+    </update>
+    
+    <delete id="deleteById">
+        DELETE FROM region WHERE id = #{id}
+    </delete>
+    
+    <select id="selectById" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM region
+        WHERE id = #{id}
+    </select>
+    
+    <select id="selectTopRegions" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM region
+        WHERE parent_id IS NULL
+    </select>
+    
+    <select id="selectByParentId" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM region
+        WHERE parent_id = #{parentId}
+    </select>
+    
+    <select id="selectByCondition" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM region
+        <where>
+            <if test="name != null and name != ''">
+                AND name LIKE CONCAT('%', #{name}, '%')
+            </if>
+            <if test="level != null and level != ''">
+                AND level = #{level}
+            </if>
+            <if test="code != null and code != ''">
+                AND code = #{code}
+            </if>
+        </where>
+    </select>
+    
+    <select id="checkCodeExists" resultType="int">
+        SELECT COUNT(*)
+        FROM region
+        WHERE code = #{code}
+        <if test="excludeId != null">
+            AND id != #{excludeId}
+        </if>
+    </select>
+    
+    <resultMap id="TreeResultMap" type="com.travel.management.entity.Region" extends="BaseResultMap">
+        <collection property="children" ofType="com.travel.management.entity.Region" 
+                    select="selectByParentId" column="id"/>
+    </resultMap>
+    
+    <select id="selectAllWithChildren" resultMap="TreeResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM region
+        WHERE parent_id IS NULL
+    </select>
+</mapper> 

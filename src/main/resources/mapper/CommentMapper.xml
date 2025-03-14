@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.travel.management.mapper.CommentMapper">
+    <resultMap id="BaseResultMap" type="com.travel.management.entity.Comment">
+        <id column="id" property="id" />
+        <result column="user_name" property="userName" />
+        <result column="scenic_id" property="scenicId" />
+        <result column="route_id" property="routeId" />
+
+        <result column="content" property="content" />
+        <result column="rating" property="rating" />
+        <result column="status" property="status" />
+        <result column="create_time" property="createTime" />
+        <result column="update_time" property="updateTime" />
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id, user_name, scenic_id, route_id, content, rating, status, create_time, update_time
+    </sql>
+
+    <insert id="insert" parameterType="com.travel.management.entity.Comment" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO comment (
+            user_name, scenic_id, route_id, content, rating, status, create_time, update_time
+        ) VALUES (
+            #{userName}, #{scenicId}, #{routeId}, #{content}, #{rating}, #{status}, #{createTime}, #{updateTime}
+        )
+    </insert>
+
+    <select id="selectByScenicId" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List" />
+        FROM comment
+        WHERE scenic_id = #{scenicId}
+        ORDER BY create_time DESC
+    </select>
+
+    <delete id="deleteById">
+        DELETE FROM comment WHERE id = #{id}
+    </delete>
+
+    <update id="updateStatus">
+        UPDATE comment
+        SET status = #{status},
+            update_time = NOW()
+        WHERE id = #{id}
+    </update>
+
+    <select id="selectById" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List" />
+        FROM comment
+        WHERE id = #{id}
+    </select>
+</mapper>
